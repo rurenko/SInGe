@@ -7,6 +7,7 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <cstdio>
 #include <dictionary.hpp>
 #include <statistics.h>
 #include <sstream>
@@ -51,13 +52,20 @@ int main(int argc, char** argv) {
     }
     for (auto it = docs.begin(); it != docs.end(); ++it) {
         std::ifstream doc(*it);
-        cout << *it << " loaded." << endl;
         if (doc.is_open()) {
             std::ostringstream ss;
             ss << doc.rdbuf();
+            cout << *it << " loaded." << endl;
             const string str(ss.str());
             automaton.AddStringViaStopSymbol(str.c_str(), str.length());
             cout<< *it << " is added to automaton." << endl;
+            //Remove added file
+            int ret_code = remove((*it).c_str());
+            if (ret_code == 0) {
+                cout << *it << " deleted." << endl;
+            } else {
+                cerr <<"Error during deletion " << *it << endl;
+            }
         }
     }
     Dictionary dictionary = Dictionary(automaton, 100, 3);
