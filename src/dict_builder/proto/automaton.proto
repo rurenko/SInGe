@@ -1,12 +1,12 @@
 message ProtoNode {
   message Edge {
-   required int32 edge_char = 1;
+   required sint32 edge_char = 1;
    required int64 to_node_id = 2;
   }
 //private
   repeated Edge edges = 1;
   repeated Edge rev_edges = 2;
-  repeated int64 rev_links = 8;
+  repeated uint64 rev_links = 8;
 //public
   required int64 link  = 3;
   required int64 len_actual  = 4;
@@ -19,9 +19,15 @@ message ProtoNode {
 
 message ProtoAutomaton {
   repeated ProtoNode nodes_pool = 1;
-  required int64 last_node = 2;
-  required int64 len_up_to_stop_symbol = 3;
+  required uint64 last_node = 2;
+  required uint64 len_up_to_stop_symbol = 3;
   required double current_coef = 4;
   repeated bool is_free_node = 5;
+  required uint64 max_size = 6;
+  required sint32 stop_symbol = 7;
+  required double coef = 8;
+  //TODO (Skipor) remove when automaton nodes_to_delete_ invariants problem solved
+  repeated uint64 nodes_to_delete_id = 9;
+  required uint64 amount_alive_nodes = 10;
 
 }
