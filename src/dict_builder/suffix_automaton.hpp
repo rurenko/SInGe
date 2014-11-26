@@ -20,7 +20,7 @@
 #include "node.hpp"
 
 struct compare_nodes {
-  bool operator() (const std::pair<std::pair<double, size_t>, size_t>& node1, const std::pair<std::pair<double, size_t>, size_t>& node2) {
+  bool operator() (const std::pair<std::pair<double, size_t>, size_t>& node1, const std::pair<std::pair<double, size_t>, size_t>& node2) const {
     double occurs1 = node1.first.first;
     double occurs2 = node2.first.first;
     size_t len1 = node1.first.second;

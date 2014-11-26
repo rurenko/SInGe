@@ -34,6 +34,10 @@ protected:
     for (size_t i_node = 0; i_node < first_automaton.nodes_pool_.size(); ++i_node) {
       NodeEqualsTest(first_automaton.nodes_pool_[i_node], second_automaton.nodes_pool_[i_node], msg);
     }
+
+    EXPECT_EQ(first_automaton.kCoef, second_automaton.kCoef) << msg;
+    EXPECT_EQ(first_automaton.kStopSymbol, second_automaton.kStopSymbol) << msg;
+    EXPECT_EQ(first_automaton.kMaxSize, second_automaton.kMaxSize) << msg;
     EXPECT_EQ(first_automaton.free_nodes_, second_automaton.free_nodes_) << msg;
     EXPECT_EQ(first_automaton.is_free_node_, second_automaton.is_free_node_) << msg;
     EXPECT_EQ(first_automaton.last_node_, second_automaton.last_node_) << msg;
@@ -41,6 +45,40 @@ protected:
     EXPECT_EQ(first_automaton.current_coef, second_automaton.current_coef) << msg;
     EXPECT_EQ(first_automaton.amount_alive_nodes_, second_automaton.amount_alive_nodes_) << msg;
     EXPECT_EQ(first_automaton.nodes_to_delete_, second_automaton.nodes_to_delete_) << msg;
+  }
+
+
+  void SerializationAutomatonInvariantsTest(const SuffixAutomaton& automaton) {
+    auto &zero_node = automaton.nodes_pool_[0];
+    EXPECT_EQ(automaton.nodes_to_delete_.count(
+        std::make_pair(
+            std::make_pair(
+                zero_node.score_occurs_only,
+                zero_node.len_within_document
+            ),
+            0
+        )
+    ), 0);
+
+
+    for (size_t i_node = 1; i_node < automaton.is_free_node_.size(); ++i_node) {
+      const Node &current_node = automaton.nodes_pool_[i_node];
+      if ( automaton.is_free_node_[i_node]) {
+        //free_nodes_.push_back(i_node);
+      } else {
+        EXPECT_EQ(automaton.nodes_to_delete_.count(
+            std::make_pair(
+                std::make_pair(
+                    current_node.score_occurs_only,
+                    current_node.len_within_document
+                ),
+                i_node
+            )
+        ), 1);
+      }
+    }
+    EXPECT_EQ(automaton.amount_alive_nodes_, automaton.nodes_to_delete_.size());
+
   }
 
   SuffixAutomaton SerializeAndDeserialize(const SuffixAutomaton& automaton) {
@@ -106,6 +144,19 @@ TEST_F(SerializationTest, EmptyStringTest) {
 TEST_F(SerializationTest, DefaultConstructorTest) {
   SuffixAutomaton automaton;
   AutomatonSerializationTest(automaton);
+}
+TEST_F(SerializationTest, InvariatinsTest) {
+  const char* str1 = "aaaabacaaabaca";
+  const char* str2 = "xxxyyywwwwwwwwxxyyyw";
+  const char* str3 = "l;kjasdalskdjfl  qojlsakj oit\n \n asl;fjlasjdfl;l;lkl;k354566325734 1```431@\n#$%^&*()";
+  SuffixAutomaton automaton;
+  automaton.AddString(str1, strlen(str1));
+  automaton.AddString(str2, strlen(str2));
+  automaton.AddString(str3, strlen(str3));
+  automaton.AddString("abacaba", 7);
+  automaton.AddStringViaStopSymbol("qw", 2);
+  automaton.AddString("erty", 4);
+  SerializationAutomatonInvariantsTest(automaton);
 }
 
 TEST_F(SerializationTest, AutomatonTest) {
