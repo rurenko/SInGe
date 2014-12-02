@@ -18,6 +18,7 @@ public:
 
   Dictionary();
 
+<<<<<<< HEAD
   Dictionary(size_t kMaxDict
           , size_t kMinLen
           , char kStopSymbol
@@ -27,6 +28,9 @@ public:
   Dictionary(const SuffixAutomaton& automaton
           , size_t kMaxDict
           , size_t kMinLen);
+=======
+  Dictionary(size_t kMaxDict, size_t kMinLen, char kStopSymbol, size_t kMaxAutomatonSize, double kAutomatonCoef);
+>>>>>>> upstream/master
 
   ~Dictionary();
 

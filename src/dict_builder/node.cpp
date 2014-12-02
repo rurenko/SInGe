@@ -98,11 +98,11 @@ void Node::SortEdges() {
   std::sort(edges_.begin(), edges_.end());
 }
 
-size_t Node::InDegree() {
+size_t Node::InDegree() const {
   return rev_edges_.size();
 }
 
-size_t Node::OutDegree() {
+size_t Node::OutDegree() const {
   return edges_.size();
 }
 

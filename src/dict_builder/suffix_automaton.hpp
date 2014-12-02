@@ -8,15 +8,15 @@
 #ifndef SUFFIX_AUTOMATON_HPP_
 #define SUFFIX_AUTOMATON_HPP_
 
+#include <cassert>
+#include <cmath>
 #include <cstddef> //size_t
+#include <memory> //unique_ptr
 #include <string>
 #include <vector>
 #include <set>
-#include <cmath>
-#include <cassert>
-#include <memory> //unique_ptr
-#include <automaton.pb.h>
 
+#include "automaton.pb.h"
 #include "node.hpp"
 
 struct compare_nodes {
@@ -133,7 +133,6 @@ private:
 };
 
 
-
 class SuffixAutomaton::iterator {
 public:
   iterator(size_t id, std::vector<bool>& is_free_node);
@@ -154,4 +153,3 @@ private:
 };
 
 #endif // SUFFIX_AUTOMATON_HPP_
-

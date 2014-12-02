@@ -6,11 +6,11 @@
 */
 
 #include <algorithm>
-#include <cstdio>
-#include <string>
-#include <queue>
-#include <iostream>
 #include <cassert>
+#include <cstdio>
+#include <iostream>
+#include <queue>
+#include <string>
 
 #include "suffix_automaton.hpp"
 
@@ -21,24 +21,24 @@ using std::string;
 using std::make_pair;
 
 SuffixAutomaton::SuffixAutomaton()
-    : kMaxSize(1 << 18)
-    , kStopSymbol('#')
-    , kCoef(0.9)
-    , len_up_to_stop_symbol_(1)
-    , amount_alive_nodes_(0)
-    , current_coef(1.0) {
+    : kMaxSize(1 << 18),
+      kStopSymbol('#'),
+      kCoef(0.9),
+      len_up_to_stop_symbol_(1),
+      amount_alive_nodes_(0),
+      current_coef(1.0) {
   NewNode(); // ~ nullptr
   last_node_ = NewNode();
   AddToNodesToDelete(last_node_);
 }
 
 SuffixAutomaton::SuffixAutomaton(char kStopSymbol, size_t kMaxSize, double kCoef)
-    : kStopSymbol(kStopSymbol)
-    , kMaxSize(kMaxSize)
-    , kCoef(kCoef)
-    , len_up_to_stop_symbol_(1)
-    , amount_alive_nodes_(0)
-    , current_coef(1.0) {
+    : kMaxSize(kMaxSize),
+      kStopSymbol(kStopSymbol),
+      kCoef(kCoef),
+      len_up_to_stop_symbol_(1),
+      amount_alive_nodes_(0),
+      current_coef(1.0) {
   NewNode(); // ~ nullptr
   last_node_ = NewNode();
   AddToNodesToDelete(last_node_);
@@ -75,17 +75,17 @@ double SuffixAutomaton::GetScore(size_t id) {
 }
 
 bool SuffixAutomaton::AddOccurence(size_t id) {
-  if  (!GetNode(id)) {
+  if (!GetNode(id))
     return false;
-  }
-  if  (GetNode(id)->OutDegree() == 0) {
+
+  if (GetNode(id)->OutDegree() == 0)
     EraseFromNodesToDelete(id);
-  }
+
   ++GetNode(id)->docs_occurs_in;
   GetNode(id)->score_occurs_only += 1.0 / current_coef;
-  if  (GetNode(id)->OutDegree() == 0) {
+
+  if (GetNode(id)->OutDegree() == 0)
     AddToNodesToDelete(id);
-  }
 
   return true;
 }
@@ -146,11 +146,10 @@ string SuffixAutomaton::GetLongestString(size_t id) {
 }
 
 bool SuffixAutomaton::ReduceSize() {
-  if  (AmountAliveNodes() > 2 * kMaxSize) {
-    while (AmountAliveNodes() > kMaxSize) {
-      auto min_node = *nodes_to_delete_.begin();
-      DeleteNode(min_node.second);
-    }
+  if  (AmountAliveNodes() > 2 * kMaxSize) { 
+    while (AmountAliveNodes() > kMaxSize)
+      DeleteNode(nodes_to_delete_.begin()->second);
+
     return true;
   }
   return false;
@@ -160,7 +159,7 @@ vector<size_t> SuffixAutomaton::GetNodesInOrder() {
   std::queue<size_t> q_nodes;
   vector<char> was_in_q(AmountNodes(), false);
   vector<size_t> order;
-
+  
   q_nodes.push(root());
   was_in_q[root()] = true;
   while (!q_nodes.empty()) {
@@ -174,7 +173,7 @@ vector<size_t> SuffixAutomaton::GetNodesInOrder() {
         was_in_q[to] = true;
         q_nodes.push(to);
       }
-    }
+    }      
   }
 
   return order;
@@ -203,13 +202,13 @@ size_t SuffixAutomaton::NewNode() {
 }
 
 bool SuffixAutomaton::AddLink(size_t from, size_t to) {
-  if  (!GetNode(from) || !GetNode(to)) {
+  if  (!GetNode(from) || !GetNode(to))
     return false;
-  }
+
   size_t old_to = GetNode(from)->link;
-  if  (GetNode(old_to)) {
+  if  (GetNode(old_to))
     GetNode(old_to)->DeleteRevLink(from);
-  }
+
   GetNode(from)->link = to;
   GetNode(to)->AddRevLink(from);
   return true;
@@ -230,31 +229,31 @@ bool SuffixAutomaton::DeleteEdge(size_t from, size_t to) {
   if  (GetNode(from)->OutDegree() == 0) {
     AddToNodesToDelete(from);
   }
-  return true;
+  return true;  
 }
 
 bool SuffixAutomaton::DeleteNode(size_t id) {
   if  (id == last_node_) {
     size_t new_last_node_ = 0;
     for (auto it = GetNode(id)->rev_edges_begin(); it != GetNode(id)->rev_edges_end(); ++it) {
-      if  (!new_last_node_ || GetNode(it->second)->len_actual > GetNode(new_last_node_)->len_actual) {
+      if (!new_last_node_ || GetNode(it->second)->len_actual > GetNode(new_last_node_)->len_actual) {
         new_last_node_ = it->second;
       }
     }
     last_node_ = new_last_node_;
   }
 
-  // redirect incoming links
+  // redirect incoming links  
   for (auto it = GetNode(id)->rev_links_begin(); it != GetNode(id)->rev_links_end(); ++it) {
     size_t from = *it;
     GetNode(from)->link = GetNode(id)->link;
-    GetNode(GetNode(id)->link)->AddRevLink(from);
+    GetNode(GetNode(id)->link)->AddRevLink(from);  
   }
-
+  
   // delete incoming edges
   for (auto it = GetNode(id)->rev_edges_begin(); it != GetNode(id)->rev_edges_end(); ++it) {
     GetNode(it->second)->DeleteEdge(id);
-    if  (GetNode(it->second)->OutDegree() == 0) {
+    if (GetNode(it->second)->OutDegree() == 0) {    
       AddToNodesToDelete(it->second);
     }
   }
@@ -267,7 +266,7 @@ bool SuffixAutomaton::DeleteNode(size_t id) {
   for (auto it = GetNode(id)->edges_begin(); it != GetNode(id)->edges_end(); ++it) {
     size_t to = it->second;
     GetNode(to)->DeleteRevEdge(id);
-    if  (GetNode(to)->InDegree() == 0) {
+    if (GetNode(to)->InDegree() == 0) {
       to_delete.push_back(to);
     }
   }
@@ -329,11 +328,13 @@ void SuffixAutomaton::AddCharacter(char ch) {
 
 void SuffixAutomaton::AddToNodesToDelete(size_t id) {
   assert(GetNode(id)->OutDegree() == 0);
-  nodes_to_delete_.insert(make_pair(make_pair(GetNode(id)->score_occurs_only, GetNode(id)->len_within_document), id));
+  nodes_to_delete_.insert(
+      make_pair(make_pair(GetNode(id)->score_occurs_only, GetNode(id)->len_within_document), id));
 }
 
 void SuffixAutomaton::EraseFromNodesToDelete(size_t id) {
-  nodes_to_delete_.erase(make_pair(make_pair(GetNode(id)->score_occurs_only, GetNode(id)->len_within_document), id));
+  nodes_to_delete_.erase(
+      make_pair(make_pair(GetNode(id)->score_occurs_only, GetNode(id)->len_within_document), id));
 }
 
 SuffixAutomaton::iterator::iterator(size_t id, vector<bool>& is_free_node) : id_(id), is_free_node_(is_free_node) {}
@@ -367,24 +368,16 @@ std::unique_ptr<ProtoAutomaton> SuffixAutomaton::GetProtoAutomaton() const {
   proto_automaton->set_last_node(last_node_);
   proto_automaton->set_len_up_to_stop_symbol(len_up_to_stop_symbol_);
   proto_automaton->set_current_coef(current_coef);
+  proto_automaton->set_max_size(kMaxSize);
   proto_automaton->set_coef(kCoef);
   proto_automaton->set_stop_symbol(kStopSymbol);
-  proto_automaton->set_max_size(kMaxSize);
   auto* proto_nodes_pool = proto_automaton->mutable_nodes_pool();
   proto_nodes_pool->Reserve(nodes_pool_.size());
   for (auto& node : nodes_pool_) {
     //ownership transfer
     proto_nodes_pool->AddAllocated(node.GetProtoNode().release());
   }
-    //TODO (Skipor) remove when automaton nodes_to_delete_ invariants problem solved
-  auto* proto_nodes_to_delete = proto_automaton->mutable_nodes_to_delete_id();
-  proto_nodes_to_delete->Reserve(nodes_to_delete_.size());
-  for(auto& to_delete_pair : nodes_to_delete_) {
-    proto_nodes_to_delete->AddAlreadyReserved(to_delete_pair.second);
-  }
-  proto_automaton->set_amount_alive_nodes(amount_alive_nodes_);
-  // TODOEND
-  assert(proto_nodes_pool->size() == (int) nodes_pool_.size());
+  assert(proto_nodes_pool->size() == static_cast<int>(nodes_pool_.size()));
   auto* proto_is_free_node = proto_automaton->mutable_is_free_node();
   proto_is_free_node->Reserve(is_free_node_.size());
   for (bool is_free : is_free_node_) {
@@ -394,20 +387,23 @@ std::unique_ptr<ProtoAutomaton> SuffixAutomaton::GetProtoAutomaton() const {
   return proto_automaton;
 }
 
-SuffixAutomaton::SuffixAutomaton(const ProtoAutomaton& proto_automaton) {
+SuffixAutomaton::SuffixAutomaton(const ProtoAutomaton& proto_automaton)
+    : amount_alive_nodes_(0) {
   last_node_ = proto_automaton.last_node();
   len_up_to_stop_symbol_ = proto_automaton.len_up_to_stop_symbol();
   current_coef = proto_automaton.current_coef();
   kMaxSize = proto_automaton.max_size();
-  kStopSymbol = proto_automaton.stop_symbol();
   kCoef = proto_automaton.coef();
+  kStopSymbol = proto_automaton.stop_symbol();
+
   const auto& proto_is_free_node = proto_automaton.is_free_node();
-  is_free_node_.resize(proto_is_free_node.size());
+  is_free_node_.resize(proto_automaton.is_free_node_size());
   const auto& proto_nodes_pool = proto_automaton.nodes_pool();
-  nodes_pool_.reserve(proto_nodes_pool.size());
-  assert(proto_is_free_node.size() == proto_nodes_pool.size());
+  nodes_pool_.reserve(proto_automaton.nodes_pool_size());
+  assert(proto_automaton.is_free_node_size() == proto_automaton.nodes_pool_size());
 
   nodes_pool_.emplace_back(proto_nodes_pool.Get(0)); // zero node
+
   for (size_t i_node = 1; i_node < is_free_node_.size(); ++i_node) {
     const auto& proto_node = proto_nodes_pool.Get(i_node);
     nodes_pool_.emplace_back(proto_node);
@@ -416,35 +412,20 @@ SuffixAutomaton::SuffixAutomaton(const ProtoAutomaton& proto_automaton) {
       is_free_node_[i_node] = true;
       free_nodes_.push_back(i_node);
     } else {
-      //TODO (Skipor) uncomment when automaton nodes_to_delete_ invariants problem solved
-//      nodes_to_delete_.insert(
-//          make_pair(
-//              make_pair(
-//                  current_node.score_occurs_only,
-//                  current_node.len_within_document
-//              ),
-//              i_node
-//          )
-//      );
+      ++amount_alive_nodes_;
+      if (current_node.OutDegree() == 0) {
+        nodes_to_delete_.insert(
+            make_pair(
+                make_pair(
+                    current_node.score_occurs_only,
+                    current_node.len_within_document
+                ),
+                i_node
+            )
+        );
+      }
     }
+    // 1 is for zero node
+    assert(amount_alive_nodes_ + free_nodes_.size() + 1 == nodes_pool_.size());
   }
-  //TODO (Skipor) remove when automaton nodes_to_delete_ invariants problem solved
-  for(const auto& node_to_delete_id : proto_automaton.nodes_to_delete_id()) {
-      nodes_to_delete_.insert(
-          std::make_pair(
-              make_pair(
-                  nodes_pool_[node_to_delete_id].score_occurs_only,
-                  nodes_pool_[node_to_delete_id].len_within_document
-              ),
-              node_to_delete_id
-          )
-      );
-  }
-  amount_alive_nodes_ = proto_automaton.amount_alive_nodes();
-  //TODOEND
-
-  // 1 is for zero node
-  //TODO (Skipor) uncomment when automaton nodes_to_delete_ invariants problem solved
-  //amount_alive_nodes_ = nodes_to_delete_.size();
-//  assert(amount_alive_nodes_ + free_nodes_.size() + 1 == nodes_pool_.size());
 }

@@ -24,10 +24,6 @@ message ProtoAutomaton {
   required double current_coef = 4;
   repeated bool is_free_node = 5;
   required uint64 max_size = 6;
-  required sint32 stop_symbol = 7;
+  required int32 stop_symbol = 7;
   required double coef = 8;
-  //TODO (Skipor) remove when automaton nodes_to_delete_ invariants problem solved
-  repeated uint64 nodes_to_delete_id = 9;
-  required uint64 amount_alive_nodes = 10;
-
 }
